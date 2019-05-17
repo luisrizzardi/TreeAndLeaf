@@ -1,9 +1,9 @@
 #' Initial layout creation for the TreeAndLeaf.
 #'
-#' Returns a matrix of positions to be relaxed by the force based algorithm
-#' implemented in the RedeR package.
+#' Returns the given igraph with nodes coordinates added after setting of positions
+#' and relaxation by the force based algorithm implemented in the RedeR package.
 #'
-#' @param rdp An object of RedPort class, from RedeR package <RedPort>.
+#' @param obj An object of RedPort class, from RedeR package <RedPort>.
 #' @param gg An hclust or igraph object, containing the dendrogram to
 #' be reorganized <igraph><hclust>.
 #' @param size The size of the dendrogram. "small" = less
@@ -12,29 +12,25 @@
 #' results (default = "small") <string>.
 #' @param showgraph Toggles the addition of the resulting layout to the
 #' RedeR app and the relaxation process (default = TRUE) <logical>.
-#' @return A matrix of the nodes positions.
+#' @return The given igraph with nodes coordinates added.
 #'
 #' @seealso \code{\link{formatTree}}
 #' @seealso \code{\link[RedeR:addGraph]{addGraph}}
 #' @seealso \code{\link[RedeR:relax]{relax}}
 #'
 #' @examples
-#' #For showgraph = FALSE, get the resulting layout using:
-#' hc <- hclust(dist(USArrests), "ave")
-#' layout <- treeAndLeaf(hc, showgraph = FALSE)
-#'
-#' #For showgraph = TRUE, plot the tree using:
 #' rdp <- RedeR::RedPort()
 #' RedeR::calld(rdp)
 #' hc <- hclust(dist(USArrests), "ave")
-#' treeAndLeaf(hc)
+#' treeAndLeaf(rdp, hc)
 #' @export
 
 
-treeAndLeaf <- function(rdp, gg, size = "small", showgraph = TRUE){
+treeAndLeaf <- function(obj, gg, size = "small", showgraph = TRUE){
   if(class(gg)=="hclust"){
     gg <- hclust2igraph(gg)
   }
+  
   #-- Find root and get number of leafs
   edgelist <- igraph::get.edgelist(gg)
   root <- .findRoot(edgelist)
@@ -61,22 +57,37 @@ treeAndLeaf <- function(rdp, gg, size = "small", showgraph = TRUE){
   layout <- .setLayout(children[2], edgelist, layout, size = size)
 
   if(showgraph == TRUE){
-    RedeR::.rederpost(rdp, 'RedHandler.stopPaint')
+    ndmax <- max(igraph::V(gg)$nodeSize)
+    ndmin <- sort(unique(igraph::V(gg)$nodeSize))[2]
+    gg2 <- normggSize(gg, 50, 200)
+    
+    RedeR::.rederpost(obj, 'RedHandler.stopPaint')
     switch(size,
-           small = RedeR::addGraph(rdp, gg, layout = layout, zoom = 15),
-           medium = RedeR::addGraph(rdp, gg, layout = layout, zoom = 8),
-           large = RedeR::addGraph(rdp, gg, layout = layout, zoom = 3))
+           small = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 15)),
+           medium = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 8)),
+           large = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 3)))
     switch(size,
-           small = RedeR::relax(rdp, p1 = 50, p8 = 40, ps = TRUE),
-           medium = RedeR::relax(rdp, p1 = 80, p8 = 60, ps = TRUE),
-           large = RedeR::relax(rdp, p1 = 100, p8 = 80, ps = TRUE))
+           small = RedeR::relax(obj, p1 = 50, p8 = 40, p5 = 500, ps = TRUE, p9 = 10000),
+           medium = RedeR::relax(obj, p1 = 80, p2 = 120, p5 = 500, p8 = 60, ps = TRUE, p9 = 10000),
+           large = RedeR::relax(obj, p1 = 100, p2 = 150, p5 = 500, p8 = 80, ps = TRUE, p9 = 10000))
 
-    seconds <- ceiling(length(igraph::V(gg)$name)/100)+2
-    cat("Please wait... Your tree will be available in", seconds, "seconds.")
+    seconds <- ceiling(length(igraph::V(gg)$name)/25)+2
+    message("Please wait... Your tree will be available in ", seconds, " seconds.")
     Sys.sleep(seconds)
-    RedeR::.rederpost(rdp, 'RedHandler.startPaint')
+
+    switch(size,
+           small = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 18)),
+           medium = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 10)),
+           large = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 2)))
+    switch(size,
+           small = RedeR::relax(obj, p1 = 30, p3 = 50, p5 = 100, p8 = 30, ps = TRUE, p9 = 10000),
+           medium = RedeR::relax(obj, p1 = 60, p5 = 100, p8 = 60, ps = TRUE, p9 = 10000),
+           large = RedeR::relax(obj, p1 = 80, p2 = 50, p5 = 100, p8 = 100, ps = TRUE, p9 = 10000))
+    RedeR::.rederpost(obj, 'RedHandler.startPaint')
+    gg3 <- getGraph(obj, attribs = "all")
   }
-  return(invisible(layout))
+  rm(count, pos = .GlobalEnv)
+  return(invisible(gg3))
 }
 
 .setLayout <- function(node, edgelist, layout, size = "small"){
