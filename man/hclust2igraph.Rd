@@ -16,6 +16,7 @@ A igraph object.
 Function for converting a hclust object to an igraph
 }
 \examples{
+hc <- hclust(dist(USArrests), "ave")
 gg <- hclust2igraph(hc)
 
 }

@@ -10,6 +10,7 @@
 #' \code{\link[igraph:igraph-package]{igraph}}
 #'
 #' @examples
+#' hc <- hclust(dist(USArrests), "ave")
 #' gg <- hclust2igraph(hc)
 #'
 #' @export

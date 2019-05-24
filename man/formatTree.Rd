@@ -13,6 +13,8 @@ formatTree(gg, dataframe, ..., theme = "SSGreens", cleanalias = FALSE)
 used to create the igraph, a column with the data to be shown as node sizes
 and a column with the data to create the color gradient <dataframe>.}
 
+\item{...}{Optional parameters detailed below. Each one of them has a default if not informed.}
+
 \item{theme}{Selects the predefined theme to be the base of the igraph formatting.
 The first character represents the size of the tree - S for small, M for medium and L for large.
 See \code{\link{treeAndLeaf}} for more information about tree sizes.
@@ -22,24 +24,6 @@ and PuOr for a Purple/Orange divergent palette. Options are: SSGreens, SSReds, S
 MSGreens, MSReds, MDPuOr, LSGreens, LSReds, LDPuOr (default = "SSGreens") <string>.}
 
 \item{cleanalias}{A logical that removes the node aliases when set to TRUE (default = FALSE) <logical>.}
-
-\item{nodeSize}{The name of the column for size differentiation (must be a column of given "dataframe") <string>.}
-
-\item{nszleg}{Number of size legend components <numeric>.}
-
-\item{nodeColor}{The name of the column color differentiation (must be a column of given "dataframe") <string>.}
-
-\item{palqt}{How many color quantiles the data will be divided into <numeric>.}
-
-\item{colpal}{Which RColorBrewer palette will be used <string>.}
-
-\item{nodeFontSize}{The alias font size <numeric>.}
-
-\item{nodeFontColor}{The alias font color <string>.}
-
-\item{edgeWidth}{The edge width <numeric>.}
-
-\item{edgeColor}{The edge color <numeric>.}
 }
 \value{
 An igraph object with standard formatting for RedeR application.
@@ -49,6 +33,20 @@ Applies formatting patterns to an igraph object according to predefined themes
 and/or user choices. This formatting is used for plotting on the RedeR app interface.
 You may choose among using the original themes, personalizing just some of the parameters
 or setting all of them.
+}
+\details{
+Additional arguments:
+\describe{
+\item{nodeSize}{The name of the column for size differentiation (must be a column of given "dataframe") <string>.}
+\item{nszleg}{Number of size legend components <numeric>.}
+\item{nodeColor}{The name of the column color differentiation (must be a column of given "dataframe") <string>.}
+\item{palqt}{How many color quantiles the data will be divided into <numeric>.}
+\item{colpal}{Which RColorBrewer palette will be used <string>.}
+\item{nodeFontSize}{The alias font size <numeric>.}
+\item{nodeFontColor}{The alias font color <string>.}
+\item{edgeWidth}{The edge width <numeric>.}
+\item{edgeColor}{The edge color <numeric>.}
+}
 }
 \examples{
 hc <- hclust(dist(USArrests), "ave")

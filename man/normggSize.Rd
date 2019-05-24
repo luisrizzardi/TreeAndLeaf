@@ -23,6 +23,8 @@ it is necessary to use this function after aplying \code{\link[TreeAndLeaf]{form
 \code{\link[RedeR]{att.setv}}
 }
 \examples{
+data(gg)
+gg <- gg$g
 gg <- normggSize (gg, 150, 50)
 
 }

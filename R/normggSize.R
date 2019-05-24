@@ -16,32 +16,36 @@
 #' @seealso \code{\link[igraph]{V}}
 #'
 #' @examples
+#' data(gg)
+#' gg <- gg$g
 #' gg <- normggSize (gg, 150, 50)
 #'
 #' @export
 
 normggSize <- function (gg, mint, maxt) {
 
-    if(!is.null(gg$legNodeSize$scale)){
-        max <- max(gg$legNodeSize$scale)
-        min <- min(gg$legNodeSize$scale)
+    if(!is.null(gg$legNodeSize["scale"])){
+        max <- max(gg$legNodeSize[["scale"]])
+        min <- min(gg$legNodeSize[["scale"]])
         range1 <- max - min
-        gg$legNodeSize$scale <- gg$legNodeSize$scale/range1
         range2 <- maxt - mint
-        gg$legNodeSize$scale <- (gg$legNodeSize$scale * range2) + mint
+        gg$legNodeSize[["scale"]] <- (gg$legNodeSize[["scale"]]- min)/range1
+        gg$legNodeSize[["scale"]] <- (gg$legNodeSize[["scale"]] * range2) + mint
     }
     
-    max <- max(igraph::V(gg)$nodeSize)
-    min <- sort(unique(igraph::V(gg)$nodeSize))[2]
+    max <- max(igraph::vertex_attr(gg, "nodeSize"))
+  
+    min <- sort(unique(igraph::vertex_attr(gg, "nodeSize")))[2]
     range1 <- max - min
 
-    idx <- igraph::V(gg)$nodeSize != min(igraph::V(gg)$nodeSize)
-
-    igraph::V(gg)$nodeSize[idx] <- (igraph::V(gg)$nodeSize[idx] - min)/range1
-    igraph::V(gg)$nodeSize[is.nan(igraph::V(gg)$nodeSize)] <- 0
+    idx <- igraph::vertex_attr(gg, "nodeSize") != min(igraph::vertex_attr(gg, "nodeSize"))
+    
+    igraph::vertex_attr(gg, "nodeSize")[idx] <- (igraph::vertex_attr(gg, "nodeSize")[idx] - min)/range1
+    igraph::vertex_attr(gg, "nodeSize")[!idx] <- 1
+    
     range2 <- maxt - mint
 
-    igraph::V(gg)$nodeSize[idx] <- (igraph::V(gg)$nodeSize[idx] * range2) + mint
+    igraph::vertex_attr(gg, "nodeSize")[idx] <- (igraph::vertex_attr(gg, "nodeSize")[idx] * range2) + mint
 
     return(gg)
 }

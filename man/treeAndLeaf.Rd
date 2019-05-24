@@ -28,10 +28,12 @@ Returns the given igraph with nodes coordinates added after setting of positions
 and relaxation by the force based algorithm implemented in the RedeR package.
 }
 \examples{
+\dontrun{
 rdp <- RedeR::RedPort()
 RedeR::calld(rdp)
 hc <- hclust(dist(USArrests), "ave")
 treeAndLeaf(rdp, hc)
+}
 }
 \seealso{
 \code{\link{formatTree}}

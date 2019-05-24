@@ -19,10 +19,12 @@
 #' @seealso \code{\link[RedeR:relax]{relax}}
 #'
 #' @examples
+#' \dontrun{
 #' rdp <- RedeR::RedPort()
 #' RedeR::calld(rdp)
 #' hc <- hclust(dist(USArrests), "ave")
 #' treeAndLeaf(rdp, hc)
+#' }
 #' @export
 
 
@@ -50,51 +52,54 @@ treeAndLeaf <- function(obj, gg, size = "small", showgraph = TRUE){
   layout[children[1],] <- c(elR, 0)
   layout[children[2],] <- c(-elL, 0)
 
-  count <<- 0
+  TaL <- new.env(parent = emptyenv())
+  assign("count", 0, envir = TaL)
 
   #-- Recursively set the layout for the rest of the binary tree
-  layout <- .setLayout(children[1], edgelist, layout, size = size)
-  layout <- .setLayout(children[2], edgelist, layout, size = size)
+  layout <- .setLayout(children[1], edgelist, layout, size = size, TaL = TaL)
+  layout <- .setLayout(children[2], edgelist, layout, size = size, TaL = TaL)
 
   if(showgraph == TRUE){
+
     ndmax <- max(igraph::V(gg)$nodeSize)
     ndmin <- sort(unique(igraph::V(gg)$nodeSize))[2]
     gg2 <- normggSize(gg, 50, 200)
     
     RedeR::.rederpost(obj, 'RedHandler.stopPaint')
     switch(size,
-           small = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 15)),
+           small = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 14)),
            medium = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 8)),
            large = suppressMessages(RedeR::addGraph(obj, gg2, layout = layout, zoom = 3)))
     switch(size,
-           small = RedeR::relax(obj, p1 = 50, p8 = 40, p5 = 500, ps = TRUE, p9 = 10000),
+           small = RedeR::relax(obj, p1 = 50, p8 = 40, ps = TRUE, p9 = 10000),
            medium = RedeR::relax(obj, p1 = 80, p2 = 120, p5 = 500, p8 = 60, ps = TRUE, p9 = 10000),
            large = RedeR::relax(obj, p1 = 100, p2 = 150, p5 = 500, p8 = 80, ps = TRUE, p9 = 10000))
 
     seconds <- ceiling(length(igraph::V(gg)$name)/25)+2
     message("Please wait... Your tree will be available in ", seconds, " seconds.")
     Sys.sleep(seconds)
-
+    
     switch(size,
-           small = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 18)),
+           small = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 15)),
            medium = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 10)),
            large = suppressMessages(RedeR::addGraph(obj, gg, layout = NULL, zoom = 2)))
     switch(size,
-           small = RedeR::relax(obj, p1 = 30, p3 = 50, p5 = 100, p8 = 30, ps = TRUE, p9 = 10000),
+           small = RedeR::relax(obj, p1 = 50, p8 = 40, ps = TRUE, p9 = 10000),
            medium = RedeR::relax(obj, p1 = 60, p5 = 100, p8 = 60, ps = TRUE, p9 = 10000),
            large = RedeR::relax(obj, p1 = 80, p2 = 50, p5 = 100, p8 = 100, ps = TRUE, p9 = 10000))
+    Sys.sleep(1)
     RedeR::.rederpost(obj, 'RedHandler.startPaint')
-    gg3 <- getGraph(obj, attribs = "all")
+    gg3 <- RedeR::getGraph(obj, attribs = "all")
   }
-  rm(count, pos = .GlobalEnv)
+  rm(TaL)
   return(invisible(gg3))
 }
 
-.setLayout <- function(node, edgelist, layout, size = "small"){
+.setLayout <- function(node, edgelist, layout, size = "small", TaL){
     if(node %in% edgelist[,1]){
       #-- Counter to alternate between directions (should find a better way)
-      count <<- count + 1
-
+      assign("count", get("count", envir = TaL)+1, envir = TaL)
+      
       #-- Find children
       children <- edgelist[which(edgelist[,1] %in% node),2]
 
@@ -113,15 +118,15 @@ treeAndLeaf <- function(obj, gg, size = "small", showgraph = TRUE){
       }
 
       #-- Alternates between up/down and left/right
-      if(count %% 3 == 0){
+      if(get("count", envir = TaL) %% 3 == 0){
         coord.child1 <- c(layout[node, 1], layout[node, 2] + elR)
         coord.child2 <- c(layout[node, 1], layout[node, 2] - elL)
       }
-      if(count %% 3 == 1){
+      if(get("count", envir = TaL) %% 3 == 1){
         coord.child1 <- c(layout[node, 1] + elR, layout[node, 2])
         coord.child2 <- c(layout[node, 1] - elL, layout[node, 2])
       }
-      if(count %% 3 == 2){
+      if(get("count", envir = TaL) %% 3 == 2){
         coord.child1 <- c(layout[node, 1] + 0.5*elR, layout[node, 2]+ 0.5*elR)
         coord.child2 <- c(layout[node, 1] - 0.5*elL, layout[node, 2]- 0.5*elL)
       }
@@ -132,8 +137,8 @@ treeAndLeaf <- function(obj, gg, size = "small", showgraph = TRUE){
 
 
       #-- Recursive call
-      layout <- .setLayout(children[1], edgelist, layout, size)
-      layout <- .setLayout(children[2], edgelist, layout, size)
+      layout <- .setLayout(children[1], edgelist, layout, size, TaL = TaL)
+      layout <- .setLayout(children[2], edgelist, layout, size, TaL = TaL)
     }
     else{
       return(layout)
