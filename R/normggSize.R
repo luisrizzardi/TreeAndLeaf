@@ -33,19 +33,25 @@ normggSize <- function (gg, mint, maxt) {
         gg$legNodeSize[["scale"]] <- (gg$legNodeSize[["scale"]] * range2) + mint
     }
     
+
     max <- max(igraph::vertex_attr(gg, "nodeSize"))
   
-    min <- sort(unique(igraph::vertex_attr(gg, "nodeSize")))[2]
-    range1 <- max - min
-
-    idx <- igraph::vertex_attr(gg, "nodeSize") != min(igraph::vertex_attr(gg, "nodeSize"))
+    min <- min(igraph::vertex_attr(gg, "nodeSize"))
     
-    igraph::vertex_attr(gg, "nodeSize")[idx] <- (igraph::vertex_attr(gg, "nodeSize")[idx] - min)/range1
-    igraph::vertex_attr(gg, "nodeSize")[!idx] <- 1
+    range1 <- max - min
+    print(range1)
+    idx <- vector(length = length(V(gg)$name))
+    for(i in 1:(length(V(gg)$name)/2 - 0.5)){
+      idx[match(paste0("N", i), V(gg)$name)] <- TRUE
+    }
+    
+  
+    igraph::vertex_attr(gg, "nodeSize")[!idx] <- (igraph::vertex_attr(gg, "nodeSize")[!idx] - min)/range1
+    igraph::vertex_attr(gg, "nodeSize")[idx] <- 1
     
     range2 <- maxt - mint
 
-    igraph::vertex_attr(gg, "nodeSize")[idx] <- (igraph::vertex_attr(gg, "nodeSize")[idx] * range2) + mint
+    igraph::vertex_attr(gg, "nodeSize")[!idx] <- (igraph::vertex_attr(gg, "nodeSize")[!idx] * range2) + mint
 
     return(gg)
 }
