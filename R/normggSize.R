@@ -39,10 +39,9 @@ normggSize <- function (gg, mint, maxt) {
     min <- min(igraph::vertex_attr(gg, "nodeSize"))
     
     range1 <- max - min
-    print(range1)
-    idx <- vector(length = length(V(gg)$name))
-    for(i in 1:(length(V(gg)$name)/2 - 0.5)){
-      idx[match(paste0("N", i), V(gg)$name)] <- TRUE
+    idx <- vector(length = length(igraph::V(gg)$name))
+    for(i in 1:(length(igraph::V(gg)$name)/2 - 0.5)){
+      idx[match(paste0("N", i), igraph::V(gg)$name)] <- TRUE
     }
     
   
