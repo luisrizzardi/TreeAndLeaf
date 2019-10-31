@@ -2,7 +2,7 @@
 % Please edit documentation in R/hclust2igraph.R
 \name{hclust2igraph}
 \alias{hclust2igraph}
-\title{Convert hclust to an igraph}
+\title{Convert an hclust to an igraph}
 \usage{
 hclust2igraph(hc)
 }
@@ -10,17 +10,16 @@ hclust2igraph(hc)
 \item{hc}{a hclust object.}
 }
 \value{
-A igraph object.
+An igraph object.
 }
 \description{
-Function for converting a hclust object to an igraph
+Function for converting a hclust object to an igraph.
 }
 \examples{
 hc <- hclust(dist(USArrests), "ave")
-gg <- hclust2igraph(hc)
+gg <- hclust2igraph(hc)                                 
 
 }
 \seealso{
-\code{\link[stats:hclust]{hclust}},
-\code{\link[igraph:igraph-package]{igraph}}
+\code{\link[stats:hclust]{hclust}}
 }
