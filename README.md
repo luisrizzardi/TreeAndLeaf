@@ -1,16 +1,6 @@
 # TreeAndLeaf 
 A R package for reorganizing dendrograms and adding additional layers of information.
 
-<p align="center">
-  <img height="500" src="man/figures/treeandleaf.png">
-</p>
-
-<p align="center">
-Source: Castro, 2015 (http://dx.doi.org/10.1038/ng.3458)
-</p>
-
-
-
 ## Installation
 Install TreeAndLeaf from github
 
